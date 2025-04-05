@@ -8,15 +8,17 @@ document.addEventListener('DOMContentLoaded', function () {
     map.zoomControl.remove();
 });
 
-fetch('http://3.71.86.119/prices') // заміни на своє API
+let pricesData = null;
+
+fetch('https://servicelviv.servicelviv.art/prices')
   .then(response => {
     if (!response.ok) {
       throw new Error('Помилка мережі: ' + response.status);
     }
-    return response.json(); // або response.text(), якщо API не повертає JSON
+    return response.json();
   })
   .then(data => {
-    console.log('Дані з API:', data);
+    pricesData = data;
   })
   .catch(error => {
     console.error('Сталася помилка:', error);
