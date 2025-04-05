@@ -7,3 +7,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }).addTo(map);
     map.zoomControl.remove();
 });
+
+fetch('http://3.71.86.119/prices') // заміни на своє API
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Помилка мережі: ' + response.status);
+    }
+    return response.json(); // або response.text(), якщо API не повертає JSON
+  })
+  .then(data => {
+    console.log('Дані з API:', data);
+  })
+  .catch(error => {
+    console.error('Сталася помилка:', error);
+  });
