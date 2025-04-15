@@ -23,3 +23,20 @@ fetch('https://servicelviv.servicelviv.art/prices')
   .catch(error => {
     console.error('Сталася помилка:', error);
   });
+
+  const categorySelect = document.getElementById('category');
+const serviceSelect = document.getElementById('service');
+const companySelect = document.getElementById('company');
+
+categorySelect.addEventListener('change', () => {
+  const category = categorySelect.value;
+  // Очистити і додати відповідні послуги
+  serviceSelect.innerHTML = '<option selected disabled>Послуга</option>';
+  if (category === 'Стоматологія') {
+    serviceSelect.innerHTML += '<option>Чистка</option><option>Пломба</option>';
+  } else if (category === 'Краса') {
+    serviceSelect.innerHTML += '<option>Манікюр</option><option>Макіяж</option>';
+  } else if (category === 'Авто') {
+    serviceSelect.innerHTML += '<option>Мийка</option><option>Шиномонтаж</option>';
+  }
+});
