@@ -20,15 +20,13 @@ body{
 
 .filter-container {
     display: flex;
-    justify-content: center;
+    justify-content:space-around;
     align-items: center;
-    gap: 20px;
+    gap: 40px;
     margin-top: 20px;
     z-index: 1000;
     position: absolute;
-    top: 20px;
-    left: 30px;
-    right: 30px;
+    padding: 20px 20%;
 
   }
   
