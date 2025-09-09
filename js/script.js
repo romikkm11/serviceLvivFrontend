@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 let pricesData = null;
 
-fetch('https://servicelviv.servicelviv.art/prices')
+fetch('https://servicelviv.servicelviv.art/services')
   .then(response => {
     if (!response.ok) {
       throw new Error('Помилка мережі: ' + response.status);
