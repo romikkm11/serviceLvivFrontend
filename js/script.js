@@ -33,7 +33,7 @@ const csrftoken = getCookie('csrftoken');
                 const lat = position.coords.latitude
                 const lon = position.coords.longitude
 
-                fetch('http://127.0.0.1:8000/user-location/', {
+                fetch('https://servicelviv.servicelviv.art/user-location/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json',
                               'X-CSRFToken': csrftoken
