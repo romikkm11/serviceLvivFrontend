@@ -1,4 +1,4 @@
-import {LOCAL_URL, PROD_URL } from './config.js';
+import {LOCAL_URL, PROD_URL, AUTOCOMPLETE_API } from './config.js';
 
 const BASE_URL = window.location.hostname === '127.0.0.1' ? LOCAL_URL : PROD_URL;
 const userUrl = `${BASE_URL}/services/`;
@@ -67,20 +67,28 @@ async function getPricesData() {
 }
 
 // === Функція оновлення геолокації ===
-async function sendUserLocation(lat, lon) {
+async function sendUserLocation({latitude, longitude, user_address}) {
     const tokenData = await getToken();
 
     try {
-        await fetch(`${BASE_URL}/user-location/`, {
+        const response = await fetch(`${BASE_URL}/user-location/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                latitude: lat,
-                longitude: lon,
+                latitude,
+                longitude,
+                user_address,
                 user_url: userUrl,
                 user_token: tokenData.userToken
             })
         });
+
+        const data = await response.json();
+
+        if (data.error) {
+            console.warn("Помилка від бекенду:", data.error);
+            return;
+        }       
 
         tokenData.expiry = Date.now() + 3300 * 1000;
         localStorage.setItem(tokenKey, JSON.stringify(tokenData));
@@ -112,9 +120,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
             position => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                sendUserLocation(lat, lon);
+                const user_latitude = position.coords.latitude;
+                const user_longitude = position.coords.longitude;
+                sendUserLocation({latitude: user_latitude, longitude: user_longitude});
             },
             error => console.error("Помилка геолокації:", error.message)
         );
@@ -137,6 +145,39 @@ document.addEventListener('DOMContentLoaded', async function () {
             serviceSelect.innerHTML += '<option>Манікюр</option><option>Макіяж</option>';
         } else if (category === 'Авто') {
             serviceSelect.innerHTML += '<option>Мийка</option><option>Шиномонтаж</option>';
+        }
+    });
+    let timer
+    const locationInput = document.getElementById('address-input');
+    const suggestAddressList = document.getElementById('suggest-address-list');
+
+    locationInput.addEventListener('input', function() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            
+            const address = locationInput.value;
+            const options = {method: 'GET', headers: {accept: 'application/json'}};
+
+            if(address.length < 3) {
+                suggestAddressList.innerHTML = '';
+                return
+            }
+
+            fetch(`https://eu1.locationiq.com/v1/search?key=${AUTOCOMPLETE_API}&q=${encodeURIComponent(address)}&viewbox=24.0,49.9,24.2,49.8&bounded=1&format=json&limit=5`, options)
+              .then(res => res.json())
+              .then(res => {
+                suggestAddressList.innerHTML = res
+                .map(item =>
+                    `<span class="suggest-address-item">${item.display_name}</span>`
+                ).join('');
+              })
+              .catch(err => console.error(err));
+        }, 400)
+    });
+
+    suggestAddressList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('suggest-address-item')) {
+            sendUserLocation({user_address: e.target.textContent});
         }
     });
 });
